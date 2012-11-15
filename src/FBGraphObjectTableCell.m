@@ -24,8 +24,8 @@ static const CGFloat horizontalMargin = 4;
 static const CGFloat titleTopNoSubtitle = 11;
 static const CGFloat titleTopWithSubtitle = 3;
 static const CGFloat subtitleTop = 23;
-static const CGFloat titleHeight = titleFontHeight * 1.25;
-static const CGFloat subtitleHeight = subtitleFontHeight * 1.25;
+#define titleHeight _titleFontHeight * 1.25
+#define subtitleHeight _subtitleFontHeight * 1.25
 
 @interface FBGraphObjectTableCell()
 
@@ -37,7 +37,11 @@ static const CGFloat subtitleHeight = subtitleFontHeight * 1.25;
 
 @end
 
-@implementation FBGraphObjectTableCell
+@implementation FBGraphObjectTableCell {
+	CGFloat _titleFontHeight;
+	CGFloat _subtitleFontHeight;
+	CGFloat _pictureEdge;
+}
 
 @synthesize pictureView = _pictureView;
 @synthesize titleSuffixLabel = _titleSuffixLabel;
@@ -52,6 +56,12 @@ static const CGFloat subtitleHeight = subtitleFontHeight * 1.25;
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
+		
+		float scale =  ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad ? 2 : 1);
+		_pictureEdge = pictureEdge * scale;
+		_titleFontHeight = titleFontHeight * scale;
+		_subtitleFontHeight = subtitleFontHeight * scale;
+		
         // Picture
         UIImageView *pictureView = [[UIImageView alloc] init];
         pictureView.clipsToBounds = YES;
@@ -64,11 +74,11 @@ static const CGFloat subtitleHeight = subtitleFontHeight * 1.25;
         // Subtitle
         self.detailTextLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         self.detailTextLabel.textColor = [UIColor colorWithRed:0.4 green:0.6 blue:0.8 alpha:1.0];
-        self.detailTextLabel.font = [UIFont systemFontOfSize:subtitleFontHeight];
+        self.detailTextLabel.font = [UIFont systemFontOfSize:_subtitleFontHeight];
                 
         // Title
         self.textLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        self.textLabel.font = [UIFont systemFontOfSize:titleFontHeight];
+        self.textLabel.font = [UIFont systemFontOfSize:_titleFontHeight];
         
         // Content View
         self.contentView.clipsToBounds = YES;
@@ -97,13 +107,13 @@ static const CGFloat subtitleHeight = subtitleFontHeight * 1.25;
     BOOL hasSubtitle = (self.subtitle != nil);
     BOOL hasTitleSuffix = (self.titleSuffix != nil);
     
-    CGFloat pictureWidth = hasPicture ? pictureEdge : 0;
+    CGFloat pictureWidth = hasPicture ? _pictureEdge : 0;
     CGSize cellSize = self.contentView.bounds.size;
     CGFloat textLeft = (hasPicture ? ((2 * pictureMargin) + pictureWidth) : 0) + horizontalMargin;
     CGFloat textWidth = cellSize.width - (textLeft + horizontalMargin);
     CGFloat titleTop = hasSubtitle ? titleTopWithSubtitle : titleTopNoSubtitle;
     
-    self.pictureView.frame = CGRectMake(pictureMargin, pictureMargin, pictureEdge, pictureWidth);
+    self.pictureView.frame = CGRectMake(pictureMargin, pictureMargin, _pictureEdge, pictureWidth);
     self.detailTextLabel.frame = CGRectMake(textLeft, subtitleTop, textWidth, subtitleHeight);
     if (!hasTitleSuffix) {
         self.textLabel.frame = CGRectMake(textLeft, titleTop, textWidth, titleHeight);
@@ -125,7 +135,7 @@ static const CGFloat subtitleHeight = subtitleFontHeight * 1.25;
 
 + (CGFloat)rowHeight
 {
-    return pictureEdge + (2 * pictureMargin) + 1;
+    return (pictureEdge * ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad ? 2 : 1)) + (2 * pictureMargin) + 1;
 }
 
 - (void)startAnimatingActivityIndicator {
@@ -154,15 +164,15 @@ static const CGFloat subtitleHeight = subtitleFontHeight * 1.25;
 
 - (void)updateFonts {
     if (self.boldTitle) {
-        self.textLabel.font = [UIFont boldSystemFontOfSize:titleFontHeight];
+        self.textLabel.font = [UIFont boldSystemFontOfSize:_titleFontHeight];
     } else {
-        self.textLabel.font = [UIFont systemFontOfSize:titleFontHeight];
+        self.textLabel.font = [UIFont systemFontOfSize:_titleFontHeight];
     }
 
     if (self.boldTitleSuffix) {
-        self.titleSuffixLabel.font = [UIFont boldSystemFontOfSize:titleFontHeight];
+        self.titleSuffixLabel.font = [UIFont boldSystemFontOfSize:_titleFontHeight];
     } else {
-        self.titleSuffixLabel.font = [UIFont systemFontOfSize:titleFontHeight];
+        self.titleSuffixLabel.font = [UIFont systemFontOfSize:_titleFontHeight];
     }
 }
 
